@@ -1,0 +1,15 @@
+{
+  "name": "lc-express-pizzeria-intro",
+  "version": "1.0.0",
+  "description": "Pizzeria da Marco",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "watch": "node --watch app.js"
+  },
+  "author": "Classe 138",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
