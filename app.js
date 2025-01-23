@@ -6,6 +6,7 @@ const pizzasRouter = require("./routers/pizzasRouter");
 const employersRouter = require("./routers/employersRouter");
 
 app.use(express.static("public"));
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Server della mia pizzeria");

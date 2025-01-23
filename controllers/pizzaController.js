@@ -29,17 +29,58 @@ const show = (req, res) => {
 
 // Store
 const store = (req, res) => {
-  res.send("Creazione nuova pizza");
+  const newId = pizzasData[pizzasData.length - 1].id + 1;
+
+  const newPizza = {
+    id: newId,
+    name: req.body.name,
+    image: req.body.image,
+    ingredients: req.body.ingredients,
+  };
+
+  pizzasData.push(newPizza);
+
+  res.status(201).json(newPizza);
 };
 
 // Update
 const update = (req, res) => {
-  res.send(`Modifica integrale della pizza: ${req.params.id}`);
+  const pizza = pizzasData.find((elm) => elm.id == req.params.id);
+
+  if (!pizza) {
+    return res.status(404).json({
+      error: "Pizza not found",
+    });
+  }
+
+  pizza.name = req.body.name;
+  pizza.image = req.body.image;
+  pizza.ingredients = req.body.ingredients;
+
+  res.json(pizza);
 };
 
 // Modify
 const modify = (req, res) => {
-  res.send(`Modifica parziale della pizza ${req.params.id}`);
+  const pizza = pizzasData.find((elm) => elm.id == req.params.id);
+
+  if (!pizza) {
+    return res.status(404).json({
+      error: "Pizza not found",
+    });
+  }
+
+  if (req.body.name) {
+    pizza.name = req.body.name;
+  }
+  if (req.body.image) {
+    pizza.image = req.body.image;
+  }
+  if (req.body.ingredients) {
+    pizza.ingredients = req.body.ingredients;
+  }
+
+  res.json(pizza);
 };
 
 // Delete
