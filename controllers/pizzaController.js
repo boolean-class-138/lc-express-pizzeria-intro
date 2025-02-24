@@ -1,30 +1,74 @@
+// DB VERO 😊👇
+const connection = require("../data/db");
+// DB FAKE 👇
 const pizzasData = require("../data/pizzasData");
 
 // Index
 const index = (req, res) => {
-  let pizzasFiltered = pizzasData;
-  const { ingredient } = req.query;
+  const sql = `SELECT * FROM pizzas`;
 
-  if (ingredient) {
-    pizzasFiltered = pizzasFiltered.filter((pizza) =>
-      pizza.ingredients.includes(ingredient)
-    );
-  }
+  connection.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Database query failed",
+      });
+    }
 
-  res.json(pizzasFiltered);
+    res.json(results);
+  });
 };
 
 // Show
 const show = (req, res) => {
-  const pizza = pizzasData.find((elm) => elm.id == req.params.id);
+  const pizzaSql = `
+    SELECT pizzas.*, categories.name AS category_name
+    FROM pizzas
+    JOIN categories ON pizzas.category_id = categories.id
+    WHERE pizzas.id = ?`;
 
-  if (!pizza) {
-    return res.status(404).json({
-      error: "Pizza not found",
+  const ingredientsSql = `
+    SELECT ingredients.id, ingredients.name
+    FROM ingredients
+    JOIN ingredient_pizza ON ingredient_pizza.ingredient_id = ingredients.id
+    WHERE ingredient_pizza.pizza_id = ?
+  `;
+  const id = req.params.id;
+
+  connection.query(pizzaSql, [id], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Database query failed",
+      });
+    }
+
+    const pizza = results[0];
+
+    if (!pizza) {
+      return res.status(404).json({
+        error: "Pizza not found",
+      });
+    }
+
+    connection.query(ingredientsSql, [id], (err, results) => {
+      if (err) {
+        return res.status(500).json({
+          error: "Database query failed",
+        });
+      }
+
+      pizza.ingredients = results;
+
+      res.json(pizza);
     });
-  }
+  });
 
-  res.json(pizza);
+  // const pizza = pizzasData.find((elm) => elm.id == req.params.id);
+  // if (!pizza) {
+  //   return res.status(404).json({
+  //     error: "Pizza not found",
+  //   });
+  // }
+  // res.json(pizza);
 };
 
 // Store
@@ -85,17 +129,30 @@ const modify = (req, res) => {
 
 // Delete
 const destroy = (req, res) => {
-  const pizza = pizzasData.find((elm) => elm.id == req.params.id);
+  // const pizza = pizzasData.find((elm) => elm.id == req.params.id);
 
-  if (!pizza) {
-    return res.status(404).json({
-      error: "Pizza not found",
-    });
-  }
+  // if (!pizza) {
+  //   return res.status(404).json({
+  //     error: "Pizza not found",
+  //   });
+  // }
 
-  pizzasData.splice(pizzasData.indexOf(pizza), 1);
+  // pizzasData.splice(pizzasData.indexOf(pizza), 1);
 
-  res.sendStatus(204);
+  // res.sendStatus(204);
+
+  const sql = `DELETE FROM pizzas WHERE id = ?`;
+  const id = req.params.id;
+
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Database query failed",
+      });
+    }
+
+    res.sendStatus(204);
+  });
 };
 
 module.exports = { index, show, store, update, modify, destroy };
